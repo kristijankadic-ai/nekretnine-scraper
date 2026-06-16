@@ -9,3 +9,4 @@ APScheduler>=3.10.0
 ddgs>=9.0.0
 lxml>=5.0.0
 gunicorn>=21.0.0
+sendgrid>=6.11.0
