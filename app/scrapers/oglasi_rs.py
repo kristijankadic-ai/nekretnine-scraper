@@ -10,13 +10,12 @@ class OglasiRsScraper:
     SOURCE = "oglasi_rs"
     BASE_URL = "https://www.oglasi.rs"
     URL = "https://www.oglasi.rs/nekretnine/prodaja-stanova/novi-sad"
-    HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-    AGENCIJA_KLJUCNE = ["agencija", "nekretnine doo", "doo", "pos.", "upisan", "reg.", "broker", "posrednik"]
+    HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+    AGENCIJA_KLJUCNE = ["agencija", "doo", "pos.", "upisan", "reg.", "broker", "posrednik", "nekretnine d.o.o"]
 
     def scrape(self) -> List[ScrapedListing]:
         listings = []
-        page = 1
-        while page <= 5:
+        for page in range(1, 6):
             try:
                 url = f"{self.URL}?page={page}" if page > 1 else self.URL
                 r = requests.get(url, headers=self.HEADERS, timeout=15)
@@ -30,14 +29,13 @@ class OglasiRsScraper:
                     listing = self._parse(k)
                     if listing:
                         listings.append(listing)
-                page += 1
             except Exception as e:
-                logger.error("oglasi.rs greska stranica %d: %s", page, e)
+                logger.error("oglasi.rs greska str %d: %s", page, e)
                 break
         logger.info("oglasi.rs: ukupno %d oglasa", len(listings))
         return listings
 
-    def _parse(self, k) -> ScrapedListing:
+    def _parse(self, k):
         try:
             naslov_tag = k.find("h2", itemprop="name")
             link_tag = k.find("a", class_="fpogl-list-title")
@@ -45,7 +43,6 @@ class OglasiRsScraper:
             valuta_tag = k.find("span", itemprop="priceCurrency")
             opis_tag = k.find("p", itemprop="description")
             oglasivac_tag = k.find("cite")
-            sobe_div = k.find("div", class_="col-sm-6")
 
             naslov = naslov_tag.get_text(strip=True) if naslov_tag else ""
             link = self.BASE_URL + link_tag["href"] if link_tag else ""
