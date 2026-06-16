@@ -1,4 +1,4 @@
-import os
+﻿import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -23,6 +23,7 @@ class Config:
     NOTIFICATION_RECIPIENT = os.environ.get("NOTIFICATION_RECIPIENT", MAIL_USERNAME)
 
     # Google Custom Search (optional)
+    SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY", "")
     GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "")
     GOOGLE_CSE_ID = os.environ.get("GOOGLE_CSE_ID", "")
 
