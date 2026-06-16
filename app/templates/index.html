@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
-{% block title %}Dashboard — Nekretnine Novi Sad{% endblock %}
+{% block title %}Dashboard â€” Nekretnine Novi Sad{% endblock %}
 
 {% block content %}
 <section class="stats-grid">
@@ -41,8 +41,8 @@
                 Izvor
                 <select name="source">
                     <option value="">Svi izvori</option>
-                    <option value="halooglasi" {% if filters.source == 'halooglasi' %}selected{% endif %}>Halooglasi</option>
-                    <option value="google" {% if filters.source == 'google' %}selected{% endif %}>Google</option>
+                    <option value="oglasi_rs" {% if filters.source == "oglasi_rs" %}selected{% endif %}>Oglasi.rs</option>
+                    <option value="4zida" {% if filters.source == "4zida" %}selected{% endif %}>4zida</option>
                 </select>
             </label>
             <label>
@@ -50,19 +50,19 @@
                 <input type="text" name="location" value="{{ filters.location }}" placeholder="npr. Liman, Centar">
             </label>
             <label>
-                Cena od (€)
+                Cena od (â‚¬)
                 <input type="number" name="min_price" value="{{ filters.min_price }}" min="0" step="1000">
             </label>
             <label>
-                Cena do (€)
+                Cena do (â‚¬)
                 <input type="number" name="max_price" value="{{ filters.max_price }}" min="0" step="1000">
             </label>
             <label>
-                Površina od (m²)
+                PovrÅ¡ina od (mÂ²)
                 <input type="number" name="min_area" value="{{ filters.min_area }}" min="0" step="1">
             </label>
             <label>
-                Površina do (m²)
+                PovrÅ¡ina do (mÂ²)
                 <input type="number" name="max_area" value="{{ filters.max_area }}" min="0" step="1">
             </label>
             <label>
@@ -78,15 +78,15 @@
                 <select name="sort">
                     <option value="scraped_at" {% if filters.sort == 'scraped_at' %}selected{% endif %}>Datum scrape-a</option>
                     <option value="price" {% if filters.sort == 'price' %}selected{% endif %}>Cena</option>
-                    <option value="area" {% if filters.sort == 'area' %}selected{% endif %}>Površina</option>
+                    <option value="area" {% if filters.sort == 'area' %}selected{% endif %}>PovrÅ¡ina</option>
                     <option value="rooms" {% if filters.sort == 'rooms' %}selected{% endif %}>Broj soba</option>
                 </select>
             </label>
             <label>
                 Redosled
                 <select name="order">
-                    <option value="desc" {% if filters.order == 'desc' %}selected{% endif %}>Opadajuće</option>
-                    <option value="asc" {% if filters.order == 'asc' %}selected{% endif %}>Rastuće</option>
+                    <option value="desc" {% if filters.order == 'desc' %}selected{% endif %}>OpadajuÄ‡e</option>
+                    <option value="asc" {% if filters.order == 'asc' %}selected{% endif %}>RastuÄ‡e</option>
                 </select>
             </label>
             <label class="checkbox-label">
@@ -132,7 +132,7 @@
                         {% endif %}
                         <div class="listing-details">
                             <span class="price">{{ listing.price_text or 'Cena na upit' }}</span>
-                            {% if listing.area %}<span>{{ listing.area|int }} m²</span>{% endif %}
+                            {% if listing.area %}<span>{{ listing.area|int }} mÂ²</span>{% endif %}
                             {% if listing.rooms %}<span>{{ listing.rooms }} soba</span>{% endif %}
                             {% if listing.floor %}<span>Sprat {{ listing.floor }}</span>{% endif %}
                         </div>
@@ -147,25 +147,25 @@
         {% if pagination.pages > 1 %}
             <nav class="pagination">
                 {% if pagination.has_prev %}
-                    <a href="{{ url_for('main.index', page=pagination.prev_num, source=filters.source, min_price=filters.min_price, max_price=filters.max_price, min_area=filters.min_area, max_area=filters.max_area, min_rooms=filters.min_rooms, max_rooms=filters.max_rooms, location=filters.location, search=filters.search, owners_only='1' if filters.owners_only else '0', sort=filters.sort, order=filters.order) }}" class="btn btn-secondary">← Prethodna</a>
+                    <a href="{{ url_for('main.index', page=pagination.prev_num, source=filters.source, min_price=filters.min_price, max_price=filters.max_price, min_area=filters.min_area, max_area=filters.max_area, min_rooms=filters.min_rooms, max_rooms=filters.max_rooms, location=filters.location, search=filters.search, owners_only='1' if filters.owners_only else '0', sort=filters.sort, order=filters.order) }}" class="btn btn-secondary">â† Prethodna</a>
                 {% endif %}
                 <span>Strana {{ pagination.page }} / {{ pagination.pages }}</span>
                 {% if pagination.has_next %}
-                    <a href="{{ url_for('main.index', page=pagination.next_num, source=filters.source, min_price=filters.min_price, max_price=filters.max_price, min_area=filters.min_area, max_area=filters.max_area, min_rooms=filters.min_rooms, max_rooms=filters.max_rooms, location=filters.location, search=filters.search, owners_only='1' if filters.owners_only else '0', sort=filters.sort, order=filters.order) }}" class="btn btn-secondary">Sledeća →</a>
+                    <a href="{{ url_for('main.index', page=pagination.next_num, source=filters.source, min_price=filters.min_price, max_price=filters.max_price, min_area=filters.min_area, max_area=filters.max_area, min_rooms=filters.min_rooms, max_rooms=filters.max_rooms, location=filters.location, search=filters.search, owners_only='1' if filters.owners_only else '0', sort=filters.sort, order=filters.order) }}" class="btn btn-secondary">SledeÄ‡a â†’</a>
                 {% endif %}
             </nav>
         {% endif %}
     {% else %}
         <div class="empty-state">
             <p>Nema oglasa za zadate filtere.</p>
-            <p>Pokrenite scraping da učitate oglase sa Halooglasi i Google pretrage.</p>
+            <p>Pokrenite scraping da ucitate oglase sa Oglasi.rs i 4zida.</p>
         </div>
     {% endif %}
 </section>
 
 <section class="panel panel-muted">
-    <h2>Filter agencija — ključne reči</h2>
-    <p class="hint">Oglasi koji sadrže ove reči u naslovu, opisu ili URL-u se automatski isključuju:</p>
+    <h2>Filter agencija â€” kljuÄne reÄi</h2>
+    <p class="hint">Oglasi koji sadrÅ¾e ove reÄi u naslovu, opisu ili URL-u se automatski iskljuÄuju:</p>
     <div class="keywords-list">
         {% for keyword in agency_keywords %}
             <span class="keyword-tag">{{ keyword }}</span>
@@ -181,7 +181,7 @@
             <tr>
                 <th>Izvor</th>
                 <th>Status</th>
-                <th>Pronađeno</th>
+                <th>PronaÄ‘eno</th>
                 <th>Novo</th>
                 <th>Vreme</th>
             </tr>
@@ -193,7 +193,7 @@
                     <td><span class="badge badge-{{ run.status }}">{{ run.status }}</span></td>
                     <td>{{ run.found_count }}</td>
                     <td>{{ run.new_count }}</td>
-                    <td>{{ run.started_at.strftime('%d.%m.%Y %H:%M') if run.started_at else '—' }}</td>
+                    <td>{{ run.started_at.strftime('%d.%m.%Y %H:%M') if run.started_at else 'â€”' }}</td>
                 </tr>
             {% endfor %}
         </tbody>
