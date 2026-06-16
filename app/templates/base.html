@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Nekretnine Novi Sad{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <div class="brand">
+                <h1>Nekretnine Novi Sad</h1>
+                <p>Oglasi od vlasnika — bez agencija</p>
+            </div>
+            <form action="{{ url_for('main.scrape') }}" method="post" class="scrape-form">
+                <button type="submit" class="btn btn-primary">Pokreni scraping</button>
+            </form>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Scraper za Halooglasi i Google pretragu · Novi Sad · samo oglasi od vlasnika</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>
