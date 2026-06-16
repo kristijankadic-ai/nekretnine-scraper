@@ -45,8 +45,8 @@ class EmailService:
         msg.attach(MIMEText(html_body, "html", "utf-8"))
 
         try:
-            with smtplib.SMTP(Config.MAIL_SERVER, Config.MAIL_PORT) as server:
-                if Config.MAIL_USE_TLS:
+            with smtplib.SMTP_SSL(Config.MAIL_SERVER, Config.MAIL_PORT) as server:
+                if False:
                     server.starttls()
                 if Config.MAIL_PASSWORD:
                     server.login(Config.MAIL_USERNAME, Config.MAIL_PASSWORD)
