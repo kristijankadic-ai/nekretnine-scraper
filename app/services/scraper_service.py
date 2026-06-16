@@ -1,4 +1,4 @@
-import logging
+﻿import logging
 from datetime import datetime
 from typing import List, Optional, Tuple
 
@@ -9,6 +9,7 @@ from app.models import Listing, ScrapeRun, db, utcnow
 from app.scrapers.base import ScrapedListing
 from app.scrapers.google_search import GoogleSearchScraper
 from app.scrapers.halooglasi import HalooglasiScraper
+from app.scrapers.oglasi_rs import OglasiRsScraper
 from app.services.email_service import EmailService
 
 logger = logging.getLogger(__name__)
@@ -18,19 +19,22 @@ class ScraperService:
     def __init__(self):
         self.halooglasi = HalooglasiScraper()
         self.google = GoogleSearchScraper()
+        self.oglasi_rs = OglasiRsScraper()
         self.agency_filter = AgencyFilter()
         self.email_service = EmailService()
 
     def run_full_scrape(self, send_notifications: bool = True) -> dict:
-        summary = {"halooglasi": {}, "google": {}, "new_listings": 0}
+        summary = {"halooglasi": {}, "google": {}, "oglasi_rs": {}, "new_listings": 0}
 
         halo_result = self._scrape_source("halooglasi", self.halooglasi.scrape(), send_notifications)
         summary["halooglasi"] = halo_result
 
+        oglasi_rs_result = self._scrape_source("oglasi_rs", self.oglasi_rs.scrape(), send_notifications)
+        summary["oglasi_rs"] = oglasi_rs_result
         google_result = self._scrape_source("google", self.google.scrape(), send_notifications)
         summary["google"] = google_result
 
-        summary["new_listings"] = halo_result["new_count"] + google_result["new_count"]
+        summary["new_listings"] = halo_result["new_count"] + google_result["new_count"] + oglasi_rs_result["new_count"]
         return summary
 
     def _scrape_source(
