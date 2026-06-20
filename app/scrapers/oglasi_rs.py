@@ -1,5 +1,6 @@
 ﻿import logging
 import requests
+import re
 from bs4 import BeautifulSoup
 from typing import List, Optional
 from app.scrapers.base import ScrapedListing
@@ -11,17 +12,14 @@ class OglasiRsScraper:
     BASE_URL = "https://www.oglasi.rs"
     URL = "https://www.oglasi.rs/nekretnine/prodaja-stanova/novi-sad"
     HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+
     AGENCIJA_KLJUCNE = [
-        "agencija", "agencijska sifra", "agencijska šifra",
-        "reg. pos.", "registar posrednika", "upisan u reg",
-        "posrednik", "posredovanje", "broker",
-        "doo", "d.o.o", "d.o.o.", "a.d.", "j.p.",
-        "nekretnine ns", "nekretnine novi sad",
-        "spens", "remax", "century 21", "city expert",
-        "stan i vikendica", "fortuna", "moj dom",
-        "first", "proaktiv", "maxima", "premium",
-        "elite", "royal", "golden", "platinum",
-        "ns-gn", "pj.", "broj 711", "licenca"
+        "doo", "d.o.o", "a.d.", "j.p.", "pj.",
+        "reg. pos.", "reg.br", "reg.pos", "registar posrednika",
+        "upisan u reg", "broj 711", "broj 182",
+        "agencija", "agencijska", "agencijski",
+        "nekretnine", "broker", "posrednik", "posredovanje",
+        "licenca", "sifra", "šifra"
     ]
 
     def scrape(self) -> List[ScrapedListing]:
@@ -46,8 +44,8 @@ class OglasiRsScraper:
         logger.info("oglasi.rs: ukupno %d oglasa", len(listings))
         return listings
 
-    def _je_agencija(self, tekst: str) -> bool:
-        tekst = tekst.lower()
+    def _je_agencija(self, oglasivac: str) -> bool:
+        tekst = oglasivac.lower()
         return any(k.lower() in tekst for k in self.AGENCIJA_KLJUCNE)
 
     def _parse(self, k) -> Optional[ScrapedListing]:
@@ -70,8 +68,7 @@ class OglasiRsScraper:
             if not naslov or not link:
                 return None
 
-            pun_tekst = naslov + " " + opis + " " + oglasivac
-            je_agencija = oglasivac != ''
+            je_agencija = self._je_agencija(oglasivac)
 
             try:
                 cena_float = float(cena_broj.replace(",", ".")) if cena_broj else None
@@ -87,7 +84,7 @@ class OglasiRsScraper:
                 price_text=cena_text,
                 description=opis,
                 is_agency=je_agencija,
-                raw_text=pun_tekst,
+                raw_text=naslov + " " + opis + " " + oglasivac,
             )
         except Exception as e:
             logger.warning("oglasi.rs parse greska: %s", e)
