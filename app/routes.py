@@ -79,8 +79,9 @@ def scrape():
         summary = scraper_service.run_full_scrape(send_notifications=True)
         flash(
             f"Scraping završen. Novih oglasa: {summary['new_listings']} "
-            f"(Halooglasi: {summary['halooglasi'].get('new_count', 0)}, "
-            f"Google: {summary['google'].get('new_count', 0)})",
+            f"(Oglasi.rs: {summary['oglasi_rs'].get('new_count', 0)}, "
+            f"4zida: {summary['4zida'].get('new_count', 0)}, "
+            f"Halooglasi: {summary['halooglasi'].get('new_count', 0)})",
             "success",
         )
     except Exception as exc:

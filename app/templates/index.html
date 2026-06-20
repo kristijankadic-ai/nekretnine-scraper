@@ -9,12 +9,16 @@
         <strong class="stat-value">{{ stats.total }}</strong>
     </div>
     <div class="stat-card">
-        <span class="stat-label">Halooglasi</span>
-        <strong class="stat-value">{{ stats.halooglasi }}</strong>
+        <span class="stat-label">Oglasi.rs</span>
+        <strong class="stat-value">{{ stats.oglasi_rs }}</strong>
     </div>
     <div class="stat-card">
-        <span class="stat-label">Google</span>
-        <strong class="stat-value">{{ stats.google }}</strong>
+        <span class="stat-label">4zida</span>
+        <strong class="stat-value">{{ stats['4zida'] }}</strong>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Halooglasi</span>
+        <strong class="stat-value">{{ stats.halooglasi }}</strong>
     </div>
     <div class="stat-card">
         <span class="stat-label">Poslednji scrape</span>
@@ -43,6 +47,7 @@
                     <option value="">Svi izvori</option>
                     <option value="oglasi_rs" {% if filters.source == "oglasi_rs" %}selected{% endif %}>Oglasi.rs</option>
                     <option value="4zida" {% if filters.source == "4zida" %}selected{% endif %}>4zida</option>
+                    <option value="halooglasi" {% if filters.source == "halooglasi" %}selected{% endif %}>Halooglasi</option>
                 </select>
             </label>
             <label>

@@ -24,8 +24,9 @@ def main():
         service = ScraperService()
         summary = service.run_full_scrape(send_notifications=not args.no_email)
         print(f"Done. New listings: {summary['new_listings']}")
+        print(f"  Oglasi.rs: {summary['oglasi_rs']}")
+        print(f"  4zida: {summary['4zida']}")
         print(f"  Halooglasi: {summary['halooglasi']}")
-        print(f"  Google: {summary['google']}")
 
 
 if __name__ == "__main__":

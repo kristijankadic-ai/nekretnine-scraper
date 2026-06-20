@@ -7,6 +7,7 @@ from app.models import Listing, ScrapeRun, db, utcnow
 from app.scrapers.base import ScrapedListing
 from app.scrapers.oglasi_rs import OglasiRsScraper
 from app.scrapers.cetirizida import CetiriZidaScraper
+from app.scrapers.halooglasi import HalooglasiScraper
 from app.services.email_service import EmailService
 
 logger = logging.getLogger(__name__)
@@ -15,16 +16,19 @@ class ScraperService:
     def __init__(self):
         self.oglasi_rs = OglasiRsScraper()
         self.cetirizida = CetiriZidaScraper()
+        self.halooglasi = HalooglasiScraper()
         self.agency_filter = AgencyFilter()
         self.email_service = EmailService()
 
     def run_full_scrape(self, send_notifications: bool = True) -> dict:
-        summary = {"oglasi_rs": {}, "4zida": {}, "new_listings": 0}
+        summary = {"oglasi_rs": {}, "4zida": {}, "halooglasi": {}, "new_listings": 0}
         oglasi_result = self._scrape_source("oglasi_rs", self.oglasi_rs.scrape(), send_notifications)
         summary["oglasi_rs"] = oglasi_result
         zida_result = self._scrape_source("4zida", self.cetirizida.scrape(), send_notifications)
         summary["4zida"] = zida_result
-        summary["new_listings"] = oglasi_result["new_count"] + zida_result["new_count"]
+        halo_result = self._scrape_source("halooglasi", self.halooglasi.scrape(), send_notifications)
+        summary["halooglasi"] = halo_result
+        summary["new_listings"] = oglasi_result["new_count"] + zida_result["new_count"] + halo_result["new_count"]
         return summary
 
     def _scrape_source(self, source_name, scraped, send_notifications):
@@ -122,11 +126,13 @@ class ScraperService:
         total = Listing.query.filter(Listing.is_agency.is_(False)).count()
         oglasi = Listing.query.filter(Listing.source == "oglasi_rs", Listing.is_agency.is_(False)).count()
         zida = Listing.query.filter(Listing.source == "4zida", Listing.is_agency.is_(False)).count()
+        halo = Listing.query.filter(Listing.source == "halooglasi", Listing.is_agency.is_(False)).count()
         last_run = ScrapeRun.query.order_by(ScrapeRun.started_at.desc()).first()
         return {
             "total": total,
             "oglasi_rs": oglasi,
             "4zida": zida,
+            "halooglasi": halo,
             "last_scrape": last_run.finished_at.isoformat() if last_run and last_run.finished_at else None,
             "last_scrape_status": last_run.status if last_run else None,
         }
