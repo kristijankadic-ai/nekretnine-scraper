@@ -11,7 +11,7 @@ class EmailService:
     def __init__(self):
         self.enabled = bool(Config.MAIL_USERNAME and Config.NOTIFICATION_RECIPIENT)
 
-    def _send(self, to_email: str, subject: str, body: str) -> bool:
+    def _send(self, to_email, subject: str, body: str) -> bool:
         try:
             sg = SendGridAPIClient(Config.SENDGRID_API_KEY)
             message = Mail(
@@ -36,13 +36,14 @@ class EmailService:
     def send_new_listings_notification(self, listings: List[Listing]) -> bool:
         if not listings:
             return True
+        recipients = [Config.NOTIFICATION_RECIPIENT, *Config.EXTRA_NOTIFICATION_RECIPIENTS]
         ok = self._send(
-            Config.NOTIFICATION_RECIPIENT,
+            recipients,
             f"Novi oglasi nekretnina u Novom Sadu - {len(listings)} oglasa",
             self._format_listings(listings),
         )
         if ok:
-            logger.info("Email poslat sa %d oglasa", len(listings))
+            logger.info("Email poslat sa %d oglasa (%s)", len(listings), ", ".join(recipients))
         return ok
 
     def send_new_lead_notification(self, lead: BuyerLead) -> bool:

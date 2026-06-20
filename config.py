@@ -26,6 +26,11 @@ class Config:
     MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "")
     MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER", MAIL_USERNAME)
     NOTIFICATION_RECIPIENT = os.environ.get("NOTIFICATION_RECIPIENT", MAIL_USERNAME)
+    EXTRA_NOTIFICATION_RECIPIENTS = [
+        email.strip()
+        for email in os.environ.get("EXTRA_NOTIFICATION_RECIPIENTS", "").split(",")
+        if email.strip()
+    ]
 
     # Google Custom Search (optional)
     SENDGRID_API_KEY = os.environ.get("SENDGRID_API_KEY", "")
