@@ -14,7 +14,7 @@
                 <p>Oglasi od vlasnika — bez agencija</p>
             </div>
             <nav class="header-nav">
-                <a href="{{ url_for('main.leads_new') }}" class="btn btn-secondary">Prijavi se za obaveštenja</a>
+                <a href="{{ url_for('main.leads_admin') }}" class="btn btn-secondary">Leadovi</a>
                 <form action="{{ url_for('main.scrape') }}" method="post" class="scrape-form">
                     <button type="submit" class="btn btn-primary">Pokreni scraping</button>
                 </form>

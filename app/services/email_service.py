@@ -45,22 +45,57 @@ class EmailService:
             logger.info("Email poslat sa %d oglasa", len(listings))
         return ok
 
-    def send_lead_match_notification(self, lead: BuyerLead, listings: List[Listing]) -> bool:
-        if not listings:
-            return True
+    def send_new_lead_notification(self, lead: BuyerLead) -> bool:
+        criteria = self._format_lead_criteria(lead)
         body = (
-            f"Zdravo {lead.name},\n\n"
-            f"Pronasli smo {len(listings)} novi(h) oglas(a) koji odgovaraju Vasoj pretrazi:\n\n"
-            f"{self._format_listings(listings)}\n\n"
-            "---\n"
-            f"Da se odjavite sa ovih obavestenja, kliknite: "
-            f"{Config.BASE_URL}/leads/unsubscribe/{lead.unsubscribe_token}"
+            f"Novi potencijalni kupac se prijavio:\n\n"
+            f"Ime: {lead.full_name}\n"
+            f"Email: {lead.email}\n"
+            f"Telefon: {lead.phone}\n\n"
+            f"Trazi:\n{criteria}\n\n"
+            f"Napomena: {lead.notes or '-'}\n\n"
+            f"Pregled svih leadova: {Config.BASE_URL}/leads/admin"
         )
         ok = self._send(
-            lead.email,
-            f"Novi stanovi za Vas - {len(listings)} oglasa",
+            Config.NOTIFICATION_RECIPIENT,
+            f"Novi lead - {lead.full_name}",
             body,
         )
         if ok:
-            logger.info("Lead email poslat (%s) sa %d oglasa", lead.email, len(listings))
+            logger.info("Notifikacija o novom leadu poslata agentu (%s)", lead.email)
         return ok
+
+    def send_lead_match_notification(self, matches: List[tuple]) -> bool:
+        """matches: list of (BuyerLead, list[Listing]) tuples to report to the agent."""
+        if not matches:
+            return True
+        sections = []
+        for lead, listings in matches:
+            sections.append(
+                f"=== {lead.full_name} ({lead.email}, {lead.phone}) ===\n"
+                f"Trazi:\n{self._format_lead_criteria(lead)}\n\n"
+                f"Novi odgovarajuci oglasi:\n{self._format_listings(listings)}"
+            )
+        body = "\n\n".join(sections)
+        total_leads = len(matches)
+        ok = self._send(
+            Config.NOTIFICATION_RECIPIENT,
+            f"Novi oglasi odgovaraju {total_leads} lead(ovima)",
+            body,
+        )
+        if ok:
+            logger.info("Lead match notifikacija poslata agentu za %d leadova", total_leads)
+        return ok
+
+    @staticmethod
+    def _format_lead_criteria(lead: BuyerLead) -> str:
+        parts = []
+        if lead.location:
+            parts.append(f"Lokacija: {lead.location}")
+        if lead.min_price or lead.max_price:
+            parts.append(f"Cena: {lead.min_price or 0} - {lead.max_price or '∞'} EUR")
+        if lead.min_area or lead.max_area:
+            parts.append(f"Povrsina: {lead.min_area or 0} - {lead.max_area or '∞'} m2")
+        if lead.min_rooms or lead.max_rooms:
+            parts.append(f"Sobe: {lead.min_rooms or 0} - {lead.max_rooms or '∞'}")
+        return "\n".join(parts) if parts else "(bez konkretnih kriterijuma)"

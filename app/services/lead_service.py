@@ -12,25 +12,32 @@ class LeadService:
         self.email_service = email_service or EmailService()
 
     def notify_matching_leads(self, new_listings: List[Listing]) -> int:
+        """Finds leads whose criteria match newly scraped listings and emails
+        the agent (never the buyer directly) a summary per matched lead."""
         if not new_listings:
             return 0
 
         leads = BuyerLead.query.filter_by(is_active=True).all()
-        notified = 0
+        matches = []
         for lead in leads:
-            matches = [listing for listing in new_listings if lead.matches(listing)]
-            if not matches:
-                continue
-            if self.email_service.send_lead_match_notification(lead, matches):
+            matched_listings = [listing for listing in new_listings if lead.matches(listing)]
+            if matched_listings:
+                matches.append((lead, matched_listings))
+
+        if not matches:
+            return 0
+
+        if self.email_service.send_lead_match_notification(matches):
+            for lead, _ in matches:
                 lead.last_matched_at = utcnow()
-                db.session.commit()
-                notified += 1
-        return notified
+            db.session.commit()
+        return len(matches)
 
     def create_lead(self, **kwargs) -> BuyerLead:
         lead = BuyerLead(**kwargs)
         db.session.add(lead)
         db.session.commit()
+        self.email_service.send_new_lead_notification(lead)
         return lead
 
     def unsubscribe(self, token: str) -> bool:

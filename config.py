@@ -14,6 +14,10 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     BASE_URL = os.environ.get("BASE_URL", "http://localhost:5000")
 
+    # Basic auth for the agent-only scraper dashboard
+    AGENT_USERNAME = os.environ.get("AGENT_USERNAME", "agent")
+    AGENT_PASSWORD = os.environ.get("AGENT_PASSWORD", "")
+
     # Email (SMTP)
     MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.gmail.com")
     MAIL_PORT = int(os.environ.get("MAIL_PORT", "587"))

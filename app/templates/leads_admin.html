@@ -21,7 +21,7 @@
         <tbody>
             {% for lead in leads %}
                 <tr>
-                    <td>{{ lead.name }}</td>
+                    <td>{{ lead.full_name }}</td>
                     <td>{{ lead.email }}{% if lead.phone %}<br>{{ lead.phone }}{% endif %}</td>
                     <td>
                         {% if lead.location %}{{ lead.location }}<br>{% endif %}

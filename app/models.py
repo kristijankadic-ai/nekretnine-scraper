@@ -63,9 +63,10 @@ class BuyerLead(db.Model):
     __tablename__ = "buyer_leads"
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(128), nullable=False)
+    first_name = db.Column(db.String(128), nullable=False)
+    last_name = db.Column(db.String(128), nullable=False)
     email = db.Column(db.String(256), nullable=False, index=True)
-    phone = db.Column(db.String(64), nullable=True)
+    phone = db.Column(db.String(64), nullable=False)
     min_price = db.Column(db.Float, nullable=True)
     max_price = db.Column(db.Float, nullable=True)
     min_area = db.Column(db.Float, nullable=True)
@@ -78,6 +79,10 @@ class BuyerLead(db.Model):
     unsubscribe_token = db.Column(db.String(64), unique=True, nullable=False, default=generate_token)
     created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
     last_matched_at = db.Column(db.DateTime, nullable=True)
+
+    @property
+    def full_name(self) -> str:
+        return f"{self.first_name} {self.last_name}"
 
     def matches(self, listing: "Listing") -> bool:
         if self.min_price is not None and (listing.price is None or listing.price < self.min_price):
