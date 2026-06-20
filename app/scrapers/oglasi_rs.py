@@ -71,7 +71,7 @@ class OglasiRsScraper:
                 return None
 
             pun_tekst = naslov + " " + opis + " " + oglasivac
-            je_agencija = self._je_agencija(pun_tekst)
+            je_agencija = oglasivac != ''
 
             try:
                 cena_float = float(cena_broj.replace(",", ".")) if cena_broj else None
