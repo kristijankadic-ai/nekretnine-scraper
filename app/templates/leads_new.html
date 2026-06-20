@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Prijava za obaveštenja — Nekretnine Novi Sad{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h2>Prijavite se za obaveštenja o novim oglasima</h2>
+    <p class="hint">Unesite šta tražite i javićemo Vam se mejlom čim se pojavi oglas od vlasnika koji odgovara Vašoj pretrazi.</p>
+
+    <form method="post" class="filters-form">
+        <div class="filters-grid">
+            <label>
+                Ime i prezime *
+                <input type="text" name="name" required>
+            </label>
+            <label>
+                Email *
+                <input type="email" name="email" required>
+            </label>
+            <label>
+                Telefon
+                <input type="text" name="phone">
+            </label>
+            <label>
+                Lokacija (npr. Liman, Centar)
+                <input type="text" name="location">
+            </label>
+            <label>
+                Cena od (€)
+                <input type="number" name="min_price" min="0" step="1000">
+            </label>
+            <label>
+                Cena do (€)
+                <input type="number" name="max_price" min="0" step="1000">
+            </label>
+            <label>
+                Površina od (m²)
+                <input type="number" name="min_area" min="0" step="1">
+            </label>
+            <label>
+                Površina do (m²)
+                <input type="number" name="max_area" min="0" step="1">
+            </label>
+            <label>
+                Sobe od
+                <input type="number" name="min_rooms" min="0" step="0.5">
+            </label>
+            <label>
+                Sobe do
+                <input type="number" name="max_rooms" min="0" step="0.5">
+            </label>
+        </div>
+        <label>
+            Napomena
+            <textarea name="notes" rows="3" placeholder="Bilo sta dodatno na sta treba da obratimo paznju..."></textarea>
+        </label>
+        <div class="filters-actions">
+            <button type="submit" class="btn btn-primary">Prijavi se</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

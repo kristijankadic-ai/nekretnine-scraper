@@ -9,6 +9,7 @@ from app.scrapers.oglasi_rs import OglasiRsScraper
 from app.scrapers.cetirizida import CetiriZidaScraper
 from app.scrapers.halooglasi import HalooglasiScraper
 from app.services.email_service import EmailService
+from app.services.lead_service import LeadService
 
 logger = logging.getLogger(__name__)
 
@@ -19,16 +20,29 @@ class ScraperService:
         self.halooglasi = HalooglasiScraper()
         self.agency_filter = AgencyFilter()
         self.email_service = EmailService()
+        self.lead_service = LeadService(self.email_service)
 
     def run_full_scrape(self, send_notifications: bool = True) -> dict:
         summary = {"oglasi_rs": {}, "4zida": {}, "halooglasi": {}, "new_listings": 0}
-        oglasi_result = self._scrape_source("oglasi_rs", self.oglasi_rs.scrape(), send_notifications)
+        all_new_listings = []
+
+        oglasi_result, new = self._scrape_source("oglasi_rs", self.oglasi_rs.scrape(), send_notifications)
         summary["oglasi_rs"] = oglasi_result
-        zida_result = self._scrape_source("4zida", self.cetirizida.scrape(), send_notifications)
+        all_new_listings.extend(new)
+
+        zida_result, new = self._scrape_source("4zida", self.cetirizida.scrape(), send_notifications)
         summary["4zida"] = zida_result
-        halo_result = self._scrape_source("halooglasi", self.halooglasi.scrape(), send_notifications)
+        all_new_listings.extend(new)
+
+        halo_result, new = self._scrape_source("halooglasi", self.halooglasi.scrape(), send_notifications)
         summary["halooglasi"] = halo_result
+        all_new_listings.extend(new)
+
         summary["new_listings"] = oglasi_result["new_count"] + zida_result["new_count"] + halo_result["new_count"]
+
+        if send_notifications and all_new_listings:
+            summary["leads_notified"] = self.lead_service.notify_matching_leads(all_new_listings)
+
         return summary
 
     def _scrape_source(self, source_name, scraped, send_notifications):
@@ -49,14 +63,14 @@ class ScraperService:
             run.status = "success"
             run.finished_at = utcnow()
             db.session.commit()
-            return {"found": len(scraped), "owner_listings": len(owner_listings), "new_count": len(new_listings), "status": "success"}
+            return {"found": len(scraped), "owner_listings": len(owner_listings), "new_count": len(new_listings), "status": "success"}, new_listings
         except Exception as exc:
             logger.exception("Scrape failed for %s", source_name)
             run.status = "error"
             run.finished_at = utcnow()
             run.message = str(exc)
             db.session.commit()
-            return {"found": 0, "owner_listings": 0, "new_count": 0, "status": "error"}
+            return {"found": 0, "owner_listings": 0, "new_count": 0, "status": "error"}, []
 
     def _upsert_listing(self, item):
         existing = Listing.query.filter_by(external_id=item.external_id).first()

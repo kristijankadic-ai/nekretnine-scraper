@@ -1,11 +1,13 @@
 import logging
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 
-from app.models import ScrapeRun, db
+from app.models import BuyerLead, ScrapeRun, db
 from app.services.scraper_service import ScraperService
+from app.services.lead_service import LeadService
 
 bp = Blueprint("main", __name__)
 scraper_service = ScraperService()
+lead_service = LeadService(scraper_service.email_service)
 logger = logging.getLogger(__name__)
 
 
@@ -81,7 +83,8 @@ def scrape():
             f"Scraping završen. Novih oglasa: {summary['new_listings']} "
             f"(Oglasi.rs: {summary['oglasi_rs'].get('new_count', 0)}, "
             f"4zida: {summary['4zida'].get('new_count', 0)}, "
-            f"Halooglasi: {summary['halooglasi'].get('new_count', 0)})",
+            f"Halooglasi: {summary['halooglasi'].get('new_count', 0)}). "
+            f"Obavešteno kupaca: {summary.get('leads_notified', 0)}",
             "success",
         )
     except Exception as exc:
@@ -121,3 +124,47 @@ def api_listings():
 @bp.route("/api/stats")
 def api_stats():
     return jsonify(scraper_service.get_stats())
+
+
+@bp.route("/leads", methods=["GET", "POST"])
+def leads_new():
+    if request.method == "POST":
+        name = (request.form.get("name") or "").strip()
+        email = (request.form.get("email") or "").strip()
+
+        if not name or not email:
+            flash("Ime i email su obavezni.", "error")
+            return redirect(url_for("main.leads_new"))
+
+        lead_service.create_lead(
+            name=name,
+            email=email,
+            phone=(request.form.get("phone") or "").strip() or None,
+            min_price=_parse_float(request.form.get("min_price")),
+            max_price=_parse_float(request.form.get("max_price")),
+            min_area=_parse_float(request.form.get("min_area")),
+            max_area=_parse_float(request.form.get("max_area")),
+            min_rooms=_parse_float(request.form.get("min_rooms")),
+            max_rooms=_parse_float(request.form.get("max_rooms")),
+            location=(request.form.get("location") or "").strip() or None,
+            notes=(request.form.get("notes") or "").strip() or None,
+        )
+        flash("Prijava uspešna! Obavestićemo Vas mejlom kad se pojavi odgovarajući oglas.", "success")
+        return redirect(url_for("main.leads_new"))
+
+    return render_template("leads_new.html")
+
+
+@bp.route("/leads/unsubscribe/<token>")
+def leads_unsubscribe(token):
+    if lead_service.unsubscribe(token):
+        flash("Uspešno ste se odjavili sa obaveštenja.", "success")
+    else:
+        flash("Link za odjavu nije validan.", "error")
+    return redirect(url_for("main.leads_new"))
+
+
+@bp.route("/leads/admin")
+def leads_admin():
+    leads = BuyerLead.query.order_by(BuyerLead.created_at.desc()).all()
+    return render_template("leads_admin.html", leads=leads)

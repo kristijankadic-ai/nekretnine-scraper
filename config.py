@@ -12,6 +12,7 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-change-in-production")
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{DATABASE_PATH}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    BASE_URL = os.environ.get("BASE_URL", "http://localhost:5000")
 
     # Email (SMTP)
     MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.gmail.com")

@@ -13,9 +13,12 @@
                 <h1>Nekretnine Novi Sad</h1>
                 <p>Oglasi od vlasnika — bez agencija</p>
             </div>
-            <form action="{{ url_for('main.scrape') }}" method="post" class="scrape-form">
-                <button type="submit" class="btn btn-primary">Pokreni scraping</button>
-            </form>
+            <nav class="header-nav">
+                <a href="{{ url_for('main.leads_new') }}" class="btn btn-secondary">Prijavi se za obaveštenja</a>
+                <form action="{{ url_for('main.scrape') }}" method="post" class="scrape-form">
+                    <button type="submit" class="btn btn-primary">Pokreni scraping</button>
+                </form>
+            </nav>
         </div>
     </header>
 

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Leadovi — Nekretnine Novi Sad{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <h2>Prijavljeni kupci ({{ leads|length }})</h2>
+
+    {% if leads %}
+    <table class="runs-table">
+        <thead>
+            <tr>
+                <th>Ime</th>
+                <th>Kontakt</th>
+                <th>Kriterijumi</th>
+                <th>Status</th>
+                <th>Poslednji mejč</th>
+                <th>Prijavljen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lead in leads %}
+                <tr>
+                    <td>{{ lead.name }}</td>
+                    <td>{{ lead.email }}{% if lead.phone %}<br>{{ lead.phone }}{% endif %}</td>
+                    <td>
+                        {% if lead.location %}{{ lead.location }}<br>{% endif %}
+                        {% if lead.min_price or lead.max_price %}{{ lead.min_price|int if lead.min_price else '0' }}€ - {{ lead.max_price|int if lead.max_price else '∞' }}€<br>{% endif %}
+                        {% if lead.min_area or lead.max_area %}{{ lead.min_area|int if lead.min_area else '0' }}m² - {{ lead.max_area|int if lead.max_area else '∞' }}m²<br>{% endif %}
+                        {% if lead.min_rooms or lead.max_rooms %}{{ lead.min_rooms if lead.min_rooms else '0' }} - {{ lead.max_rooms if lead.max_rooms else '∞' }} soba{% endif %}
+                    </td>
+                    <td><span class="badge badge-{{ 'success' if lead.is_active else 'error' }}">{{ 'aktivan' if lead.is_active else 'odjavljen' }}</span></td>
+                    <td>{{ lead.last_matched_at.strftime('%d.%m.%Y %H:%M') if lead.last_matched_at else '—' }}</td>
+                    <td>{{ lead.created_at.strftime('%d.%m.%Y %H:%M') if lead.created_at else '—' }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>Još nema prijavljenih kupaca.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
