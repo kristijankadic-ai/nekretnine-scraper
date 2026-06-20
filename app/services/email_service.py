@@ -16,11 +16,15 @@ class EmailService:
             return True
         try:
             sg = SendGridAPIClient(Config.SENDGRID_API_KEY)
+            body = "\n\n".join(
+                f"{l.title}\n{l.price_text or 'Cena na upit'} | {l.location or ''}\n{l.url}"
+                for l in listings
+            )
             message = Mail(
                 from_email=Config.MAIL_USERNAME,
                 to_emails=Config.NOTIFICATION_RECIPIENT,
                 subject=f"Novi oglasi nekretnina u Novom Sadu - {len(listings)} oglasa",
-                plain_text_content="\n".join([f"{l.title} - {l.url}" for l in listings])
+                plain_text_content=body,
             )
             sg.send(message)
             logger.info("Email poslat sa %d oglasa", len(listings))
