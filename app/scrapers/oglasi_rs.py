@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 class OglasiRsScraper:
     SOURCE = "oglasi_rs"
     BASE_URL = "https://www.oglasi.rs"
-    URL = "https://www.oglasi.rs/nekretnine/prodaja-stanova/novi-sad"
+    URL = "https://www.oglasi.rs/nekretnine/prodaja-stanova/novi-sad?rt=vlasnik"
     HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
 
     AGENCIJA_KLJUCNE = [
@@ -26,7 +26,7 @@ class OglasiRsScraper:
         listings = []
         for page in range(1, 6):
             try:
-                url = f"{self.URL}?page={page}" if page > 1 else self.URL
+                url = f"{self.URL}&page={page}" if page > 1 else self.URL
                 r = requests.get(url, headers=self.HEADERS, timeout=15)
                 if r.status_code != 200:
                     break
@@ -83,6 +83,7 @@ class OglasiRsScraper:
                 price=cena_float,
                 price_text=cena_text,
                 description=opis,
+                advertiser_type=oglasivac or None,
                 is_agency=je_agencija,
                 raw_text=naslov + " " + opis + " " + oglasivac,
             )

@@ -14,6 +14,9 @@ class AgencyFilter:
         self.keywords = [k.lower().strip() for k in (keywords or Config.DEFAULT_AGENCY_KEYWORDS) if k.strip()]
 
     def is_agency(self, listing: ScrapedListing) -> bool:
+        if listing.is_agency:
+            return True
+
         if listing.advertiser_type:
             adv = listing.advertiser_type.lower().strip()
             if adv in self.AGENCY_ADVERTISER_TYPES:
